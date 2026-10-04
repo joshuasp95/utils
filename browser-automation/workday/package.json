@@ -1,0 +1,17 @@
+{
+  "name": "workday-time-types-extractor",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Extrae el catálogo de Time Types de Workday con Playwright (solo lectura).",
+  "scripts": {
+    "extract:time-types": "node extract-time-types.js",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.4"
+  }
+}

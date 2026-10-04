@@ -1,0 +1,142 @@
+{
+  "outputDir": "output",
+  "profileDir": ".browser-session",
+  "viewport": { "width": 1600, "height": 1000 },
+  "ignoreHttpsErrors": true,
+  "ssoDomains": ["login.microsoftonline.com", "*.<DOMINIO_CORPORATIVO>"],
+  "timeouts": { "navigation": 90000, "networkIdle": 8000, "settle": 3500, "element": 15000 },
+
+  "environments": {
+    "dev": {
+      "name": "DEV",
+      "portalUrl": "https://<PORTAL_HOST_DEV>",
+      "dashboardUrl": "https://<KIBANA_HOST_DEV>",
+      "resourceGroup": "<RESOURCE_GROUP_DEV>",
+      "apps": ["<APP_1_DEV>", "<APP_2_DEV>"],
+      "databases": ["<DB_SERVER_DEV>"]
+    },
+    "prod": {
+      "name": "PROD",
+      "portalUrl": "https://<PORTAL_HOST_PROD>",
+      "dashboardUrl": "https://<KIBANA_HOST_PROD>",
+      "resourceGroup": "<RESOURCE_GROUP_PROD>",
+      "apps": ["<APP_1_PROD>", "<APP_2_PROD>"],
+      "databases": ["<DB_SERVER_PROD>"]
+    }
+  },
+
+  "sections": [
+    {
+      "id": "01-portal",
+      "type": "portal-page",
+      "profile": "sso",
+      "loginHint": "Portal: comprueba que ves la página principal y no la de login.",
+      "options": {
+        "steps": [
+          { "type": "page", "name": "01-landing", "url": "{{env.portalUrl}}", "settleMs": 5000 },
+          {
+            "type": "search", "name": "02-search-results", "url": "{{env.portalUrl}}",
+            "inputSelector": "input[type=\"search\"], input[placeholder*=\"earch\"]",
+            "term": "<TERMINO_DE_BUSQUEDA>",
+            "resultSelector": "<SELECTOR_CSS_PRIMER_RESULTADO>",
+            "detailName": "03-result-detail"
+          },
+          { "type": "page", "name": "04-status-table", "url": "{{env.portalUrl}}/<RUTA_ESTADO>", "dumpTable": true }
+        ]
+      }
+    },
+    {
+      "id": "02-dashboards",
+      "type": "dashboard-time-range",
+      "profile": "dashboards",
+      "envs": ["prod"],
+      "options": {
+        "baseUrl": "{{env.dashboardUrl}}",
+        "space": "<KIBANA_SPACE>",
+        "timeRangeStyle": "kibana",
+        "timeRange": { "from": "now-30d", "to": "now" },
+        "views": [
+          { "name": "01-home", "path": "/app/home", "timeRange": false },
+          { "name": "02-stack-monitoring", "path": "/app/monitoring#/home" },
+          { "name": "03-discover", "path": "/app/discover" },
+          { "name": "04-dashboard", "path": "/app/dashboards#/view/<DASHBOARD_ID>" },
+          { "name": "05-alerts", "path": "/app/management/insightsAndAlerting/triggersActions/alerts", "timeRange": false }
+        ]
+      }
+    },
+    {
+      "id": "03-apps",
+      "type": "cloud-resource-blade",
+      "profile": "sso",
+      "options": {
+        "tenantId": "{{$AZURE_TENANT_ID}}",
+        "subscriptionId": "{{$AZURE_SUBSCRIPTION_ID}}",
+        "resourceGroup": "{{env.resourceGroup}}",
+        "provider": "Microsoft.App",
+        "resourceType": "containerApps",
+        "resources": "{{env.apps}}",
+        "captureResourceGroup": true,
+        "blades": [
+          { "suffix": "", "name": "overview", "settleMs": 6000 },
+          { "suffix": "/monitoring", "name": "monitoring-30d", "settleMs": 8000 },
+          { "suffix": "/revisions", "name": "revisions", "settleMs": 5000 }
+        ]
+      }
+    },
+    {
+      "id": "04-databases",
+      "type": "cloud-resource-blade",
+      "profile": "sso",
+      "options": {
+        "tenantId": "{{$AZURE_TENANT_ID}}",
+        "subscriptionId": "{{$AZURE_SUBSCRIPTION_ID}}",
+        "resourceGroup": "{{env.resourceGroup}}",
+        "provider": "Microsoft.DBforPostgreSQL",
+        "resourceType": "flexibleServers",
+        "resources": "{{env.databases}}",
+        "blades": [
+          { "suffix": "", "name": "overview" },
+          { "suffix": "/monitoring", "name": "monitoring", "settleMs": 8000 },
+          { "suffix": "/backup", "name": "backup", "settleMs": 5000 }
+        ]
+      }
+    },
+    {
+      "id": "05-shared-console",
+      "type": "portal-page",
+      "profile": "vendor-console",
+      "scope": "shared",
+      "options": {
+        "steps": [
+          {
+            "type": "discover-links", "name": "01-resource-list",
+            "url": "https://<CONSOLA_SAAS>/<RUTA_LISTA>",
+            "hrefPattern": "/<RUTA_LISTA>/[a-f0-9]{20,}", "max": 10
+          },
+          {
+            "type": "menu", "name": "02-home", "url": "https://<CONSOLA_SAAS>/<RUTA_HOME>",
+            "enterSelector": "a[href*=\"/<RUTA_DETALLE>/\"]", "enterName": "03-detail-overview",
+            "dumpTable": true,
+            "links": [
+              { "name": "04-view-1", "label": "<TEXTO_ENLACE_MENU_1>" },
+              { "name": "05-view-2", "label": "<TEXTO_ENLACE_MENU_2>" }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+
+  "referenceQueries": [
+    "error OR exception OR failed",
+    "log.level: error"
+  ],
+
+  "report": {
+    "title": "Resultado healthcheck mensual - <SERVICIO>",
+    "template": null,
+    "resultsDir": null,
+    "perDateSubdir": false,
+    "filePrefix": "resultado-healthcheck"
+  }
+}

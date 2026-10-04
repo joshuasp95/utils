@@ -1,0 +1,30 @@
+# Secretos y configuración local: solo se versionan los *.example
+.env
+.env.*
+!.env.example
+*.conf
+!*.conf.example
+token*.txt
+*.pem
+*.key
+*.p12
+
+# Salidas generadas por los scripts (evidencias, informes, logs, exports)
+*.log
+evidencias/
+output/
+outputs/
+*.ndjson
+
+# Dependencias y cachés
+node_modules/
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# Denylist privada de anonimización (contiene justo los nombres que no se deben publicar)
+.anonymization-denylist

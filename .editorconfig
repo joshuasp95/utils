@@ -1,0 +1,42 @@
+# .editorconfig — reglas de formato que aplican automáticamente los editores (VS Code, JetBrains,
+# Neovim, Sublime...). Explicación: docs/versionado-explicaciones.md#editorconfig
+
+# root = true: no buscar más .editorconfig en carpetas superiores
+root = true
+
+# Todos los ficheros
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Shell (bash y zsh): 2 espacios
+[*.{sh,bash,zsh}]
+indent_size = 2
+
+# Python: 4 espacios (PEP 8)
+[*.py]
+indent_size = 4
+
+# JavaScript y JSON: 2 espacios
+[*.{js,mjs,cjs,json}]
+indent_size = 2
+
+# PowerShell y Groovy: 4 espacios (convención habitual de ambos lenguajes)
+[*.{ps1,psm1,groovy}]
+indent_size = 4
+
+# YAML: 2 espacios (GitHub Actions)
+[*.{yml,yaml}]
+indent_size = 2
+
+# Markdown: dos espacios al final de línea = salto de línea forzado, no se recortan
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefile exige tabuladores
+[Makefile]
+indent_style = tab

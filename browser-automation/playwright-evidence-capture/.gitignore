@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Evidencias capturadas: pueden contener datos internos
+output/
+
+# Perfiles del navegador: cookies y sesiones SSO. Tratar como una contraseña
+.browser-session/
+
+# Configuración local real (las plantillas *.example se versionan)
+.env
+config.json
+
+# Trazas de Playwright / HAR (pueden llevar tokens en cabeceras)
+trace.zip
+*.har
+
+# macOS
+.DS_Store

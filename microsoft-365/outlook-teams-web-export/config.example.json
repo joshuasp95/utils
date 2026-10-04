@@ -1,0 +1,17 @@
+{
+  "_comment": "Copia este fichero a config.local.json (ignorado por git) y sustituye los <PLACEHOLDERS>. id: minúsculas, números o guiones, empezando por letra; se usa en --tenant, en el perfil del navegador y en las rutas de salida. email: la dirección EXACTA con la que inicias sesión en ese tenant. applications: 'teams', 'outlook' o ambas.",
+  "tenants": [
+    {
+      "id": "empresa",
+      "name": "<NOMBRE_VISIBLE_EMPRESA>",
+      "email": "<TU_EMAIL_EN_EMPRESA>",
+      "applications": ["teams", "outlook"]
+    },
+    {
+      "id": "cliente",
+      "name": "<NOMBRE_VISIBLE_CLIENTE>",
+      "email": "<TU_EMAIL_EN_CLIENTE>",
+      "applications": ["outlook"]
+    }
+  ]
+}

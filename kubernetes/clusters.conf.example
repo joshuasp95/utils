@@ -1,0 +1,11 @@
+# Clusters OpenShift para openshift-token-login-all.sh y openshift-token-login.zsh.
+# Copia este fichero a clusters.conf (junto a los scripts) o apunta CLUSTERS_FILE a tu copia.
+# No lo subas al repositorio si contiene URLs reales: clusters.conf debería estar en .gitignore.
+#
+# Formato (una línea por entorno, separado por '|'):
+#   entorno|URL del API server (https://api.<host>:6443)|namespace por defecto
+# La página de token se deriva del API server: https://oauth-openshift.apps.<host>/oauth/token/request
+lab|https://api.<CLUSTER_LAB_HOST>:6443|<NAMESPACE_LAB>
+int|https://api.<CLUSTER_INT_HOST>:6443|<NAMESPACE_INT>
+pre|https://api.<CLUSTER_PRE_HOST>:6443|<NAMESPACE_PRE>
+pro|https://api.<CLUSTER_PRO_HOST>:6443|<NAMESPACE_PRO>
