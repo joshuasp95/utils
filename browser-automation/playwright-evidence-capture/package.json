@@ -1,0 +1,22 @@
+{
+  "name": "playwright-evidence-capture",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Esqueleto Playwright para iniciar sesión en consolas web, capturar evidencias (screenshots) y generar el borrador de un informe de healthcheck.",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "install:browsers": "npx playwright install chromium",
+    "login": "node src/login.js",
+    "capture": "node src/capture.js",
+    "start": "node src/capture.js",
+    "report": "node src/report.js",
+    "check": "for f in src/*.js src/sections/*.js test/*.js; do node --check \"$f\" || exit 1; done && echo 'Sintaxis OK'",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "playwright": "^1.49.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "outlook-teams-web-export",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node scripts/check-syntax.js",
+    "test": "npm run check && node --test scripts/tests/*.test.js",
+    "extract": "node scripts/run-playwright.js",
+    "extract:all": "node scripts/run-playwright.js --target all",
+    "extract:teams": "node scripts/run-playwright.js --target teams",
+    "extract:outlook": "node scripts/run-playwright.js --target outlook",
+    "teams:import": "node scripts/import-export.js teams",
+    "outlook:import": "node scripts/import-export.js outlook"
+  },
+  "dependencies": {
+    "playwright": "^1.54.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

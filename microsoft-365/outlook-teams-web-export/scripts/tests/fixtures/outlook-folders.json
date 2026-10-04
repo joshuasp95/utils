@@ -1,0 +1,21 @@
+{
+  "english": [
+    { "name": "Alpha mailbox", "level": 1, "stableId": "mailbox", "folder": false },
+    { "name": "Favorites", "level": 2, "stableId": "favorites", "folder": false, "excluded": true },
+    { "name": "Inbox", "level": 3, "stableId": "favorite-inbox", "folder": true },
+    { "name": "Inbox", "level": 2, "stableId": "inbox", "folder": true },
+    { "name": "team-requests", "level": 2, "stableId": "requests", "folder": true },
+    { "name": "Projects", "level": 2, "stableId": "projects", "folder": true },
+    { "name": "Reports", "level": 3, "stableId": "project-reports", "folder": true },
+    { "name": "Archive", "level": 2, "stableId": "archive", "folder": true },
+    { "name": "Reports", "level": 3, "stableId": "archive-reports", "folder": true },
+    { "name": "Groups", "level": 1, "stableId": "groups", "folder": false, "excluded": true }
+  ],
+  "spanish": [
+    { "name": "Buzón de Gamma", "level": 1, "stableId": "mailbox", "folder": false },
+    { "name": "Bandeja de entrada", "level": 2, "stableId": "inbox", "folder": true },
+    { "name": "Proyectos", "level": 2, "stableId": "projects", "folder": true },
+    { "name": "Informes", "level": 3, "stableId": "reports", "folder": true },
+    { "name": "Grupos", "level": 1, "stableId": "groups", "folder": false, "excluded": true }
+  ]
+}

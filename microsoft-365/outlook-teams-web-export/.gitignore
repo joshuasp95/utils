@@ -1,0 +1,12 @@
+# Dependencias
+node_modules/
+# Exportaciones: contienen correos y chats (datos personales/corporativos)
+data/
+output/
+# Perfiles persistentes del navegador (cookies y sesión de Microsoft 365)
+.playwright-profile/
+.browser-session/
+# Configuración local con tus tenants y emails reales
+config.local.*
+.env
+.DS_Store

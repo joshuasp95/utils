@@ -1,0 +1,356 @@
+{
+  "info": {
+    "name": "MongoDB Atlas Admin API - Service Account",
+    "description": "Colección para interactuar con la MongoDB Atlas Admin API v2 usando OAuth2 Service Account (client_credentials).\n\nVariables necesarias (configurar en el Environment de Postman):\n- ATLAS_CLIENT_ID\n- ATLAS_CLIENT_SECRET\n- ATLAS_PROJECT_ID\n- ATLAS_TOKEN (se rellena automáticamente con el request 'Get OAuth2 Token')\n- ATLAS_CLUSTER_NAME (nombre del cluster por defecto)\n- ATLAS_API_VERSION (por defecto: 2023-02-01)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "ATLAS_API_BASE",    "value": "https://cloud.mongodb.com/api/atlas/v2" },
+    { "key": "ATLAS_TOKEN_URL",   "value": "https://cloud.mongodb.com/api/oauth/token" },
+    { "key": "ATLAS_API_VERSION", "value": "2023-02-01" }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Auto-refresh del token si ha caducado",
+          "const expiry = pm.environment.get('ATLAS_TOKEN_EXPIRY');",
+          "const token = pm.environment.get('ATLAS_TOKEN');",
+          "if (!token || !expiry || Date.now() > parseInt(expiry)) {",
+          "  const clientId = pm.environment.get('ATLAS_CLIENT_ID');",
+          "  const clientSecret = pm.environment.get('ATLAS_CLIENT_SECRET');",
+          "  if (!clientId || !clientSecret) return;",
+          "  const basicToken = btoa(clientId + ':' + clientSecret);",
+          "  pm.sendRequest({",
+          "    url: pm.variables.get('ATLAS_TOKEN_URL'),",
+          "    method: 'POST',",
+          "    header: {",
+          "      'Authorization': 'Basic ' + basicToken,",
+          "      'Content-Type': 'application/x-www-form-urlencoded',",
+          "      'Accept': 'application/json'",
+          "    },",
+          "    body: {",
+          "      mode: 'urlencoded',",
+          "      urlencoded: [{ key: 'grant_type', value: 'client_credentials' }]",
+          "    }",
+          "  }, (err, res) => {",
+          "    if (err || res.code !== 200) return;",
+          "    const body = res.json();",
+          "    pm.environment.set('ATLAS_TOKEN', body.access_token);",
+          "    pm.environment.set('ATLAS_TOKEN_EXPIRY', Date.now() + body.expires_in * 1000 - 30000);",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Get OAuth2 Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const body = pm.response.json();",
+                  "pm.environment.set('ATLAS_TOKEN', body.access_token);",
+                  "pm.environment.set('ATLAS_TOKEN_EXPIRY', Date.now() + body.expires_in * 1000 - 30000);",
+                  "pm.test('Token obtenido', () => pm.response.to.have.status(200));",
+                  "console.log('Token expira en', body.expires_in, 'segundos');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" },
+              { "key": "Accept",       "value": "application/json" }
+            ],
+            "auth": {
+              "type": "basic",
+              "basic": [
+                { "key": "username", "value": "{{ATLAS_CLIENT_ID}}" },
+                { "key": "password", "value": "{{ATLAS_CLIENT_SECRET}}" }
+              ]
+            },
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "grant_type", "value": "client_credentials" }
+              ]
+            },
+            "url": "{{ATLAS_TOKEN_URL}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Clusters",
+      "item": [
+        {
+          "name": "List Clusters",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters"
+          }
+        },
+        {
+          "name": "Get Cluster",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}"
+          }
+        },
+        {
+          "name": "Pause Cluster",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"paused\": true}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}"
+          }
+        },
+        {
+          "name": "Resume Cluster",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"paused\": false}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}"
+          }
+        },
+        {
+          "name": "Create Cluster (M10 Example)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"<CLUSTER_NAME>\",\n  \"clusterType\": \"REPLICASET\",\n  \"replicationSpecs\": [\n    {\n      \"numShards\": 1,\n      \"regionConfigs\": [\n        {\n          \"providerName\": \"AWS\",\n          \"regionName\": \"EU_WEST_1\",\n          \"priority\": 7,\n          \"electableSpecs\": {\n            \"instanceSize\": \"M10\",\n            \"nodeCount\": 3\n          }\n        }\n      ]\n    }\n  ]\n}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters"
+          }
+        },
+        {
+          "name": "Delete Cluster",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": {
+              "raw": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}?retainBackups=false",
+              "query": [{ "key": "retainBackups", "value": "false" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Database Users",
+      "item": [
+        {
+          "name": "List DB Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/databaseUsers"
+          }
+        },
+        {
+          "name": "Get DB User",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/databaseUsers/admin/{{ATLAS_DB_USERNAME}}"
+          }
+        },
+        {
+          "name": "Create DB User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"app-user\",\n  \"password\": \"<DB_USER_PASSWORD>\",\n  \"databaseName\": \"admin\",\n  \"roles\": [\n    {\n      \"roleName\": \"readWrite\",\n      \"databaseName\": \"myDatabase\"\n    }\n  ],\n  \"scopes\": [\n    {\n      \"name\": \"{{ATLAS_CLUSTER_NAME}}\",\n      \"type\": \"CLUSTER\"\n    }\n  ]\n}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/databaseUsers"
+          }
+        },
+        {
+          "name": "Rotate DB User Password",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"<NEW_DB_USER_PASSWORD>\"\n}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/databaseUsers/admin/{{ATLAS_DB_USERNAME}}"
+          }
+        },
+        {
+          "name": "Delete DB User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/databaseUsers/admin/{{ATLAS_DB_USERNAME}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "IP Access List",
+      "item": [
+        {
+          "name": "List Access Entries",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/accessList"
+          }
+        },
+        {
+          "name": "Add IP / CIDR",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\n  {\n    \"cidrBlock\": \"10.0.0.0/8\",\n    \"comment\": \"Red interna corporativa\"\n  }\n]"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/accessList"
+          }
+        },
+        {
+          "name": "Delete Access Entry",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/accessList/10.0.0.0%2F8",
+            "description": "Nota: la barra del CIDR debe ir URL-encoded (%2F). Ajusta la URL con tu IP/CIDR."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Snapshots & Backups",
+      "item": [
+        {
+          "name": "List Snapshots",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}/backup/snapshots"
+          }
+        },
+        {
+          "name": "Create On-Demand Snapshot",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Snapshot previo a despliegue\",\n  \"retentionInDays\": 7\n}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}/backup/snapshots"
+          }
+        },
+        {
+          "name": "List Restore Jobs",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept", "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" }
+            ],
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}/backup/restoreJobs"
+          }
+        },
+        {
+          "name": "Restore Snapshot to Cluster",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization",  "value": "Bearer {{ATLAS_TOKEN}}" },
+              { "key": "Accept",         "value": "application/vnd.atlas.{{ATLAS_API_VERSION}}+json" },
+              { "key": "Content-Type",   "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"snapshotId\": \"{{ATLAS_SNAPSHOT_ID}}\",\n  \"deliveryType\": \"automated\",\n  \"targetClusterName\": \"{{ATLAS_TARGET_CLUSTER_NAME}}\",\n  \"targetGroupId\": \"{{ATLAS_PROJECT_ID}}\"\n}"
+            },
+            "url": "{{ATLAS_API_BASE}}/groups/{{ATLAS_PROJECT_ID}}/clusters/{{ATLAS_CLUSTER_NAME}}/backup/restoreJobs"
+          }
+        }
+      ]
+    }
+  ]
+}

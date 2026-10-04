@@ -1,0 +1,22 @@
+{
+  "tenants": [
+    {
+      "id": "alpha",
+      "name": "Alpha Example",
+      "email": "alice@alpha.example",
+      "applications": ["teams", "outlook"]
+    },
+    {
+      "id": "beta",
+      "name": "Beta Example",
+      "email": "alice.example@beta.example",
+      "applications": ["teams", "outlook"]
+    },
+    {
+      "id": "gamma",
+      "name": "Gamma Example",
+      "email": "alice.ext@gamma.example",
+      "applications": ["outlook"]
+    }
+  ]
+}

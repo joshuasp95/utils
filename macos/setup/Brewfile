@@ -1,0 +1,279 @@
+# Brewfile — lista de todo lo que Homebrew instala en el Mac de referencia
+#
+# Qué es:   un fichero que lee `brew bundle` para instalar de una vez taps, fórmulas (CLIs),
+#           casks (apps con interfaz), extensiones de VS Code y algunos paquetes de otros gestores
+#           (go, krew). Es idempotente: lo que ya está instalado se salta.
+# Uso:      brew bundle --file=macos/setup/Brewfile           # instala lo que falte
+#           brew bundle check --file=macos/setup/Brewfile     # solo dice si falta algo (no instala)
+#           brew bundle list --file=macos/setup/Brewfile      # lista las entradas
+# Generado: a partir de `brew bundle dump --describe` (snapshot 2026-10-05), reagrupado y comentado.
+#           Explicación detallada: EXPLICACIONES.md#brewfile
+#
+# Grupos marcados [OPCIONAL]: coméntalos (pon `#` delante) si no los necesitas en el Mac nuevo.
+# `trusted: true` = Homebrew 7 pide confirmar los taps de terceros; esta opción marca el tap
+# como de confianza para que `brew bundle` no se pare a preguntar.
+
+# ═════════════════════════════════════════════════════════════════════════════
+# TAPS — repositorios extra de fórmulas (fuera del catálogo oficial de Homebrew)
+# ═════════════════════════════════════════════════════════════════════════════
+tap "anomalyco/tap"                                     # opencode (agente IA de terminal)
+tap "aws/tap", trusted: true                            # eksctl (CLI de Amazon EKS)
+tap "azure/kubelogin", "https://github.com/Azure/homebrew-kubelogin", trusted: true  # kubelogin
+tap "confluentinc/tap", trusted: true                   # herramientas de Confluent (Kafka)
+tap "databricks/tap", trusted: true                     # CLI de Databricks
+tap "derailed/k9s", trusted: true                       # k9s (UI de terminal para Kubernetes)
+tap "elastic/tap"                                       # ecctl (Elastic Cloud)
+tap "hashicorp/tap", trusted: true                      # terraform oficial de HashiCorp
+tap "kreuzwerker/taps"                                  # helper de providers Terraform para Apple Silicon
+tap "localstack/tap", trusted: true                     # CLI de LocalStack (AWS simulado en local)
+tap "mongodb/brew", trusted: true                       # servidor MongoDB Community
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 1. CLI BÁSICO — utilidades de terminal del día a día
+# ═════════════════════════════════════════════════════════════════════════════
+brew "coreutils"        # Versiones GNU de ls, date, sort… (con prefijo g: gdate, gls)
+brew "curl"             # Cliente HTTP/HTTPS/FTP (más nuevo que el de macOS)
+brew "wget"             # Descargador de ficheros por HTTP/FTP
+brew "git"              # Control de versiones (más nuevo que el de Xcode CLT)
+brew "git-lfs"          # Extensión de git para ficheros grandes (Large File Storage)
+brew "gh"               # CLI oficial de GitHub (PRs, issues, Actions)
+brew "glab"             # CLI de GitLab (MRs, pipelines)
+brew "jq"               # Procesador de JSON en línea de comandos
+brew "yq"               # Como jq pero para YAML/JSON/XML/CSV
+brew "ripgrep"          # rg: búsqueda de texto muy rápida (sustituto de grep -R)
+brew "fd"               # Búsqueda de ficheros rápida (sustituto de find)
+brew "fzf"              # Buscador difuso interactivo (Ctrl+R en el historial, pickers)
+brew "bat"              # cat con resaltado de sintaxis e integración con git
+brew "eza"              # Sustituto moderno de ls (colores, árbol, git)
+brew "tree"             # Muestra directorios en forma de árbol
+brew "watch"            # Repite un comando cada N segundos a pantalla completa
+brew "gnu-time"         # gtime: mide tiempo y memoria de un comando (alias `clock`)
+brew "htop"             # Monitor de procesos interactivo
+brew "btop"             # Monitor de recursos (CPU, RAM, red, disco) más visual
+brew "ncdu"             # Analizador de uso de disco en terminal
+brew "httpie"           # Cliente HTTP amigable (http GET url)
+brew "glow"             # Renderiza Markdown en la terminal
+brew "neovim"           # Editor nvim (config en editors/nvim/ de este repo)
+brew "telnet"           # Cliente telnet (útil para probar si un puerto TCP responde)
+brew "duti"             # Define apps por defecto para extensiones/URLs desde terminal
+brew "shellcheck"       # Linter de scripts bash/sh
+brew "shfmt"            # Formateador de scripts de shell
+brew "yamllint"         # Linter de YAML
+brew "rtk"              # Proxy de CLI que reduce la salida para agentes IA (ahorro de tokens)
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 2. CLOUD, KUBERNETES E INFRAESTRUCTURA COMO CÓDIGO
+# ═════════════════════════════════════════════════════════════════════════════
+# --- Nubes ---
+brew "awscli"                           # CLI oficial de AWS
+brew "aws/tap/eksctl"                   # CLI oficial de Amazon EKS (crear/gestionar clusters)
+brew "azure-cli"                        # CLI de Azure (az)
+brew "azure/kubelogin/kubelogin"        # Plugin de credenciales de kubectl para Azure (AKS + Entra ID)
+brew "elastic/tap/ecctl"                # CLI oficial de Elastic Cloud
+# --- Contenedores y Kubernetes ---
+brew "docker"                           # Cliente docker (el motor lo da Docker Desktop, ver casks)
+brew "kubernetes-cli"                   # kubectl
+brew "helm"                             # Gestor de paquetes (charts) de Kubernetes
+brew "kustomize"                        # Personaliza manifiestos YAML de Kubernetes sin plantillas
+brew "krew"                             # Gestor de plugins de kubectl
+brew "derailed/k9s/k9s"                 # UI de terminal para gestionar clusters
+brew "kind"                             # Cluster de Kubernetes local dentro de Docker
+brew "minikube"                         # Otro cluster de Kubernetes local
+brew "argocd"                           # CLI de Argo CD (GitOps)
+brew "openshift-cli"                    # oc: CLI de OpenShift (compatible con kubectl)
+brew "hadolint"                         # Linter de Dockerfiles
+brew "cosign"                           # Firma y verificación de imágenes de contenedor
+# --- Terraform y secretos ---
+brew "hashicorp/tap/terraform"          # Terraform (tap oficial de HashiCorp)
+brew "terragrunt"                       # Envoltorio de Terraform (DRY, gestión de estados)
+brew "tflint"                           # Linter de ficheros Terraform
+brew "kreuzwerker/taps/m1-terraform-provider-helper"  # Compila providers Terraform antiguos sin binario arm64
+brew "sops"                             # Edita ficheros cifrados (secretos en YAML/JSON)
+brew "keeper-commander"                 # CLI del gestor de contraseñas Keeper
+brew "oath-toolkit"                     # oathtool: genera códigos TOTP (2FA) desde terminal
+# --- Simulación local ---
+brew "localstack/tap/localstack-cli"    # CLI de LocalStack (AWS simulado en Docker). Nota: marcada
+                                        # como obsoleta por su autor en favor de `lstk`
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 3. DATOS [OPCIONAL] — Kafka, MongoDB, Databricks
+# ═════════════════════════════════════════════════════════════════════════════
+brew "kafka"                                # Apache Kafka (incluye scripts kafka-topics, kafka-console-*)
+brew "mongosh"                              # Shell de MongoDB
+brew "mongodb-atlas-cli"                    # CLI de MongoDB Atlas (atlas)
+brew "mongodb/brew/mongodb-community@8.0"   # Servidor MongoDB 8.0 local (pesado; solo si lo usas)
+brew "databricks/tap/databricks", trusted: true  # CLI de Databricks
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 4. LENGUAJES Y BUILD
+# ═════════════════════════════════════════════════════════════════════════════
+brew "nvm"              # Gestor de versiones de Node.js (las versiones las instala bootstrap.sh)
+brew "node"             # Node.js "de sistema" (lo usan algunas fórmulas; para proyectos usa nvm)
+brew "openjdk@21"       # JDK 21 (dependencia de maven/kafka; para proyectos usa SDKMAN)
+brew "maven"            # Build de proyectos Java
+brew "go"               # Lenguaje Go
+brew "rust"             # Lenguaje Rust (rustc + cargo)
+brew "graphviz"         # dot: genera diagramas a partir de texto
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 5. DOCUMENTOS, MULTIMEDIA Y OCR
+# ═════════════════════════════════════════════════════════════════════════════
+brew "poppler"          # pdftotext, pdfinfo… (extraer texto/datos de PDF)
+brew "tesseract"        # OCR: reconocer texto en imágenes
+brew "ffmpeg"           # Convertir/grabar audio y vídeo
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 6. IA Y AGENTES DE CÓDIGO [OPCIONAL]
+# ═════════════════════════════════════════════════════════════════════════════
+brew "anomalyco/tap/opencode", trusted: true  # Agente de código IA para terminal
+brew "llmfit"                                 # Indica qué modelos LLM caben en tu hardware
+cask "claude-code"                            # Asistente de código IA en terminal (claude)
+cask "copilot-cli"                            # Agente de GitHub Copilot en terminal
+cask "codexbar"                               # Monitor en la barra de menús del uso de Codex/Claude
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 7. DIVERSIÓN / INFO DEL SISTEMA [OPCIONAL]
+# ═════════════════════════════════════════════════════════════════════════════
+brew "fastfetch"        # Muestra info del sistema con logo (rápido)
+brew "neofetch"         # Igual que fastfetch (más antiguo, sin mantenimiento)
+brew "cmatrix"          # Efecto "Matrix" en la terminal
+brew "lolcat"           # Colorea en arcoíris la salida de un comando
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 8. APLICACIONES (casks)
+# ═════════════════════════════════════════════════════════════════════════════
+# --- Terminales y editores ---
+cask "iterm2"                   # Terminal alternativo al Terminal de Apple
+cask "warp"                     # Terminal moderno escrito en Rust
+cask "visual-studio-code"       # Editor de código (extensiones en la sección 9)
+cask "jetbrains-toolbox"        # Instala/actualiza IntelliJ IDEA y otros IDEs de JetBrains
+# --- Desarrollo ---
+cask "docker-desktop"           # Motor de Docker + interfaz (necesario para docker, kind, minikube)
+cask "headlamp"                 # Interfaz gráfica para Kubernetes
+cask "dbeaver-community"        # Cliente SQL/BD universal
+cask "postman"                  # Cliente de APIs
+cask "session-manager-plugin"   # Plugin de AWS CLI para `aws ssm start-session`
+cask "confluent-cli"            # [OPCIONAL] CLI de Confluent Cloud/Platform (Kafka)
+# --- Productividad y sistema ---
+cask "raycast"                  # Lanzador (sustituto de Spotlight) con extensiones
+cask "rectangle"                # Recolocar ventanas con atajos de teclado
+cask "hammerspoon"              # Automatización del escritorio con Lua (~/.hammerspoon/init.lua)
+cask "caffeine"                 # Evita que el Mac se duerma
+cask "stats"                    # Monitor de CPU/RAM/red en la barra de menús
+cask "shottr"                   # Capturas de pantalla con anotación y medidas
+cask "excalidrawz"              # Cliente de Excalidraw (diagramas a mano alzada)
+cask "paintbrush"               # Editor de imágenes sencillo (tipo Paint)
+# --- Navegadores y comunicación ---
+cask "firefox"                  # Navegador
+cask "brave-browser"            # Navegador centrado en privacidad
+cask "slack"                    # Chat de equipo
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 8b. FUENTES — AÑADIDO: en el Mac de referencia Hack se instaló a mano
+# ═════════════════════════════════════════════════════════════════════════════
+cask "font-hack"                # Fuente monoespaciada Hack (la que usan terminal y editores)
+# cask "font-hack-nerd-font"    # [OPCIONAL] Hack con iconos "Nerd Font": necesaria para ver los
+                                # iconos de la config de Neovim (editors/nvim)
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 8c. APPS HOY INSTALADAS FUERA DE HOMEBREW [OPCIONAL, comentadas]
+# ═════════════════════════════════════════════════════════════════════════════
+# En el Mac de referencia se descargaron a mano (ver INVENTARIO.md). Si prefieres que las gestione
+# Homebrew, descomenta. Comprueba antes el nombre con `brew info --cask <nombre>`.
+# cask "google-chrome"
+# cask "microsoft-edge"
+# cask "claude"
+# cask "chatgpt"
+# cask "obsidian"
+# cask "fork"
+# cask "github"                 # GitHub Desktop
+# cask "lens"
+# cask "mongodb-compass"
+# cask "visualvm"
+# cask "lm-studio"
+# cask "sublime-text"
+# cask "discord"
+# cask "spotify"
+# cask "audacity"
+# cask "keeper-password-manager"
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 9. EXTENSIONES DE VS CODE [OPCIONAL] — requieren el cask visual-studio-code
+# ═════════════════════════════════════════════════════════════════════════════
+# Alternativa: activar "Settings Sync" en VS Code (sincroniza extensiones Y ajustes con tu cuenta).
+# --- Git ---
+vscode "donjayamanne.git-extension-pack"        # Pack de extensiones de git
+vscode "donjayamanne.githistory"                # Historial de git visual
+vscode "eamodio.gitlens"                        # Autoría por línea, historial, comparaciones
+vscode "waderyan.gitblame"                      # Autor de la línea en la barra de estado
+vscode "codezombiech.gitignore"                 # Plantillas de .gitignore
+vscode "ziyasal.vscode-open-in-github"          # Abrir el fichero/línea en GitHub
+vscode "github.vscode-github-actions"           # Editar/ver workflows de GitHub Actions
+# --- Infra / cloud ---
+vscode "hashicorp.terraform"                    # Terraform (sintaxis, LSP)
+vscode "ms-azuretools.vscode-containers"        # Contenedores
+vscode "ms-azuretools.vscode-docker"            # Docker
+vscode "ms-kubernetes-tools.vscode-kubernetes-tools"  # Kubernetes
+vscode "redhat.vscode-openshift-connector"      # OpenShift
+vscode "redhat.vscode-redhat-account"           # Cuenta Red Hat (dependencia del anterior)
+vscode "ms-vscode-remote.remote-containers"     # Dev Containers
+vscode "mongodb.mongodb-vscode"                 # MongoDB
+# --- Lenguajes ---
+vscode "redhat.java"                            # Java (LSP)
+vscode "vscjava.vscode-java-pack"               # Pack Java
+vscode "vscjava.vscode-java-debug"              # Depurador Java
+vscode "vscjava.vscode-java-dependency"         # Vista de dependencias Java
+vscode "vscjava.vscode-java-test"               # Tests Java
+vscode "vscjava.vscode-maven"                   # Maven
+vscode "vscjava.vscode-gradle"                  # Gradle
+vscode "vscjava.vscode-spring-initializr"       # Generar proyectos Spring Boot
+vscode "scala-lang.scala"                       # Scala
+vscode "golang.go"                              # Go
+vscode "ms-python.python"                       # Python
+vscode "ms-python.vscode-pylance"               # Python (LSP)
+vscode "ms-python.debugpy"                      # Depurador Python
+vscode "ms-python.autopep8"                     # Formateador Python
+vscode "ms-python.vscode-python-envs"           # Entornos virtuales Python
+vscode "ms-vscode.powershell"                   # PowerShell
+vscode "mads-hartmann.bash-ide-vscode"          # Bash (LSP)
+vscode "foxundermoon.shell-format"              # Formateo de scripts de shell
+vscode "nicolasvuillamy.vscode-groovy-lint"     # Groovy
+vscode "dcortes92.freemarker"                   # Plantillas FreeMarker
+vscode "samuel-weinhardt.vscode-jsp-lang"       # JSP
+vscode "flipwarthog.faces-intellisense"         # JSF/Faces
+vscode "redhat.vscode-xml"                      # XML
+vscode "redhat.vscode-yaml"                     # YAML (validación con esquemas)
+# --- Markdown, datos y utilidades ---
+vscode "yzhang.markdown-all-in-one"             # Markdown (atajos, índice)
+vscode "shd101wyy.markdown-preview-enhanced"    # Vista previa avanzada de Markdown
+vscode "bierner.markdown-mermaid"               # Diagramas Mermaid en la vista previa
+vscode "zaaack.markdown-editor"                 # Editor WYSIWYG de Markdown
+vscode "mechatroner.rainbow-csv"                # CSV con columnas coloreadas
+vscode "imgildev.vscode-json-flow"              # JSON como diagrama
+vscode "cweijan.vscode-office"                  # Ver Office/PDF dentro de VS Code
+vscode "berublan.vscode-log-viewer"             # Visor de logs con seguimiento
+vscode "humao.rest-client"                      # Peticiones HTTP desde ficheros .http
+vscode "techer.open-in-browser"                 # Abrir HTML en el navegador
+vscode "alefragnani.project-manager"            # Gestor de proyectos
+vscode "oderwat.indent-rainbow"                 # Indentación coloreada
+# --- IA ---
+vscode "anthropic.claude-code"                  # Claude Code
+vscode "openai.chatgpt"                         # Codex/ChatGPT
+vscode "openai.codex-audio"                     # Dictado para Codex
+vscode "atlassian.atlascode"                    # Jira/Bitbucket
+# --- Temas e iconos ---
+vscode "catppuccin.catppuccin-vsc"              # Tema Catppuccin
+vscode "eliverlara.andromeda"                   # Tema Andromeda
+vscode "pkief.material-icon-theme"              # Iconos de ficheros
+
+# ═════════════════════════════════════════════════════════════════════════════
+# 10. OTROS GESTORES (brew bundle también los sabe instalar)
+# ═════════════════════════════════════════════════════════════════════════════
+go "golang.org/x/tools/gopls"   # Servidor de lenguaje de Go (requiere brew "go")
+krew "modify-secret"            # Plugin de kubectl: editar Secrets ya decodificados (requiere krew)
+# Paquetes npm globales: NO se instalan aquí sino en bootstrap.sh, DESPUÉS de nvm, para que
+# queden en la versión de Node de nvm y no en el node de Homebrew. Lista: @openai/codex,
+# mcp-remote, yarn.
+# npm "@openai/codex"
+# npm "mcp-remote"
+# npm "yarn"
